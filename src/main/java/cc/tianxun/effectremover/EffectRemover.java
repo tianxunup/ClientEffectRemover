@@ -34,6 +34,7 @@ public class EffectRemover implements ModInitializer {
 		if (!file.exists()) {
 			EffectRemover.LOGGER.info("Couldn't find config file, creating");
 			try {
+				new File("config").mkdirs();
 				file.createNewFile();
 				InputStream defaultFileStream = EffectRemover.class.getResourceAsStream("/default_config.json");
 
