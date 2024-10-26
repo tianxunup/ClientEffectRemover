@@ -1,0 +1,6 @@
+{
+  "commands.effectr.add.exists": "效果\"%s\"已经在客户端被屏蔽。",
+  "commands.effectr.add.success": "成功在客户端屏蔽效果\"%s\"。",
+  "commands.effectr.remove.not_exists": "效果\"%s\"没有在客户端被屏蔽。",
+  "commands.effectr.remove.success": "成功在客户端解除屏蔽效果\"%s\"。"
+}
