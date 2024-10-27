@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Objects;
 
@@ -83,6 +84,7 @@ public class EffectRemover implements ModInitializer {
 			writer = new JsonWriter(
 				new OutputStreamWriter(new FileOutputStream(String.format("config/%s.json", EffectRemover.MOD_ID)))
 			);
+			writer.setIndent("\t");
 			writer.beginObject();
 
 			writer.name("disabled_effects");
@@ -146,7 +148,7 @@ public class EffectRemover implements ModInitializer {
 	private int sendDisabledEffectCommand(CommandContext<FabricClientCommandSource> context) {
 		if (this.disabledEffects.isEmpty()) {
 			context.getSource().sendFeedback(Text.translatable("commands.effectr.list.empty"));
-			return 1;
+			return 0;
 		}
 		context.getSource().sendFeedback(Text.translatable("commands.effectr.list.head"));
 		for (String effectId : this.disabledEffects) {
@@ -163,26 +165,28 @@ public class EffectRemover implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		this.loadConfig();
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-			dispatcher.register(ClientCommandManager.literal("effectr")
-				.then(ClientCommandManager.literal("disable").then(ClientCommandManager.argument("effect", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.STATUS_EFFECT))
-					.executes(this::addingDisabledEffectCommand)))
-				.then(ClientCommandManager.literal("enable").then(ClientCommandManager.argument("effect", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.STATUS_EFFECT))
-					.executes(this::removingDisabledEffectCommand)))
-				.then(ClientCommandManager.literal("list").executes(this::sendDisabledEffectCommand))
-				.then(ClientCommandManager.literal("remove").then(ClientCommandManager.argument("effect", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.STATUS_EFFECT))
-					.executes(this::removingEffectOnceCommand)))
-			);
-
-		});
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("effectr")
+			.then(ClientCommandManager.literal("disable").then(ClientCommandManager.argument("effect", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.STATUS_EFFECT))
+				.executes(this::addingDisabledEffectCommand)))
+			.then(ClientCommandManager.literal("enable").then(ClientCommandManager.argument("effect", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.STATUS_EFFECT))
+				.executes(this::removingDisabledEffectCommand)))
+			.then(ClientCommandManager.literal("list").executes(this::sendDisabledEffectCommand))
+			.then(ClientCommandManager.literal("remove").then(ClientCommandManager.argument("effect", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.STATUS_EFFECT))
+				.executes(this::removingEffectOnceCommand)))
+		));
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (client.player == null) {
 				return;
 			}
-			for (StatusEffectInstance effect : client.player.getStatusEffects()) {
-				if (this.disabledEffects.contains(effect.getEffectType().getIdAsString())) {
-					client.player.removeStatusEffect(effect.getEffectType());
+			try {
+				for (StatusEffectInstance effect : client.player.getStatusEffects()) {
+					if (this.disabledEffects.contains(effect.getEffectType().getIdAsString())) {
+						client.player.removeStatusEffect(effect.getEffectType());
+					}
 				}
+			}
+			catch (ConcurrentModificationException e) {
+				LOGGER.warn("ConcurrentModificationException: null");
 			}
 		});
 	}
