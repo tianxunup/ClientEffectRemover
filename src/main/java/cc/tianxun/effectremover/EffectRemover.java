@@ -2,6 +2,7 @@ package cc.tianxun.effectremover;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -34,12 +35,17 @@ public class EffectRemover implements ModInitializer {
 	public List<String> disabledEffects = new ArrayList<>();
 
 	private void loadConfig() {
+		LOGGER.info("Loading config.");
 		File file = new File(String.format("config/%s.json", EffectRemover.MOD_ID));
 		if (!file.exists()) {
 			EffectRemover.LOGGER.info("Couldn't find config file, creating");
 			try {
-				new File("config").mkdirs();
-				file.createNewFile();
+				if (!new File("config").mkdirs()) {
+					LOGGER.warn("Failed to create the config dir.");
+				}
+				if (!file.createNewFile()) {
+					LOGGER.warn("Failed to create the config file.");
+				}
 				InputStream defaultFileStream = EffectRemover.class.getResourceAsStream("/default_config.json");
 
 				OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
@@ -49,6 +55,7 @@ public class EffectRemover implements ModInitializer {
 				defaultFileStream.close();
 			}
 			catch (IOException e) {
+				LOGGER.error("Error!");
 				throw new RuntimeException(e);
 			}
 		}
@@ -57,9 +64,13 @@ public class EffectRemover implements ModInitializer {
 			reader = new JsonReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 			reader.beginObject();
 			while (reader.hasNext()) {
-				switch (reader.nextName()) {
+				String key = reader.nextName();
+				switch (key) {
 					case "disabled_effects" -> this.loadEffectsFromJsonFile(reader);
-					default -> reader.skipValue();
+					default -> {
+						LOGGER.warn("Invalid key in the config file: {}",key);
+						reader.skipValue();
+					}
 				}
 			}
 			reader.endObject();
@@ -79,6 +90,7 @@ public class EffectRemover implements ModInitializer {
 	}
 
 	private void saveConfig() {
+		LOGGER.info("Saving config.");
 		JsonWriter writer;
 		try {
 			writer = new JsonWriter(
@@ -116,7 +128,7 @@ public class EffectRemover implements ModInitializer {
 		context.getSource().sendFeedback(
 			Text.translatable("commands.effectr.disable.success", effectId)
 		);
-		return 1;
+		return Command.SINGLE_SUCCESS;
 	}
 	private int removingDisabledEffectCommand(CommandContext<FabricClientCommandSource> context) {
 		String effectId = context.getArgument("effect", RegistryEntry.Reference.class).getIdAsString();
@@ -131,7 +143,7 @@ public class EffectRemover implements ModInitializer {
 		context.getSource().sendFeedback(
 			Text.translatable("commands.effectr.enable.success", effectId)
 		);
-		return 1;
+		return Command.SINGLE_SUCCESS;
 	}
 	private int removingEffectOnceCommand(CommandContext<FabricClientCommandSource> context) {
 		String effectId = context.getArgument("effect", RegistryEntry.Reference.class).getIdAsString();
@@ -139,7 +151,7 @@ public class EffectRemover implements ModInitializer {
 			if (effect.getEffectType().getIdAsString().equals(effectId)) {
 				context.getSource().getPlayer().removeStatusEffect(effect.getEffectType());
 				context.getSource().sendFeedback(Text.translatable("commands.effectr.remove.success"));
-				return 1;
+				return Command.SINGLE_SUCCESS;
 			}
 		}
 		context.getSource().sendFeedback(Text.translatable("commands.effectr.remove.without"));
@@ -159,7 +171,7 @@ public class EffectRemover implements ModInitializer {
 			context.getSource().sendFeedback(Text.empty().append(" - ").append(effectId).append(" (")
 				.append(effect.getName()).append(")"));
 		}
-		return 1;
+		return Command.SINGLE_SUCCESS;
 	}
 
 	@Override
