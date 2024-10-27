@@ -1,6 +1,10 @@
 {
-  "commands.effectr.add.exists": "The effect \"%s\" has been disabled in the client.",
-  "commands.effectr.add.success": "Successful to disable the effect \"%s\" in the client.",
-  "commands.effectr.remove.not_exists": "The effect \"%s\" is not disabled in the client.",
-  "commands.effectr.remove.success": "Successful to enable the effect \"%s\" in the client."
+  "commands.effectr.disable.exists": "The effect \"%s\" has been disabled in the client.",
+  "commands.effectr.disable.success": "Successful to disable the effect \"%s\" in the client.",
+  "commands.effectr.enable.not_exists": "The effect \"%s\" is not disabled in the client.",
+  "commands.effectr.enable.success": "Successful to enable the effect \"%s\" in the client.",
+  "commands.effectr.list.empty": "There are no effects disabled in the client.",
+  "commands.effectr.list.head": "Disabled effects(client):",
+  "commands.effectr.remove.success": "Successful to remove the effect once in the client.",
+  "commands.effectr.remove.without": "You don't have the effect."
 }

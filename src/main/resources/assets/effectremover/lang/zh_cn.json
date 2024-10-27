@@ -1,6 +1,10 @@
 {
-  "commands.effectr.add.exists": "效果\"%s\"已经在客户端被屏蔽。",
-  "commands.effectr.add.success": "成功在客户端屏蔽效果\"%s\"。",
-  "commands.effectr.remove.not_exists": "效果\"%s\"没有在客户端被屏蔽。",
-  "commands.effectr.remove.success": "成功在客户端解除屏蔽效果\"%s\"。"
+  "commands.effectr.disable.exists": "效果\"%s\"已经在客户端被屏蔽。",
+  "commands.effectr.disable.success": "成功在客户端屏蔽效果\"%s\"。",
+  "commands.effectr.enable.not_exists": "效果\"%s\"没有在客户端被屏蔽。",
+  "commands.effectr.enable.success": "成功在客户端解除屏蔽效果\"%s\"。",
+  "commands.effectr.list.empty": "没有效果在客户端被屏蔽。",
+  "commands.effectr.list.head": "被禁用的效果(客户端):",
+  "commands.effectr.remove.success": "成功在客户端一次性屏蔽效果。",
+  "commands.effectr.remove.without": "你并未拥有此效果。"
 }
