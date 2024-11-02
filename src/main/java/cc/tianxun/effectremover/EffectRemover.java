@@ -119,7 +119,7 @@ public class EffectRemover implements ModInitializer {
 		String effectId = context.getArgument("effect", RegistryEntry.Reference.class).getIdAsString();
 		if (this.disabledEffects.contains(effectId)) {
 			context.getSource().sendFeedback(
-				Text.translatable("commands.effectr.disable.exists", effectId).fillStyle(Text.literal("").getStyle().withColor(TextColor.fromRgb(255*256*256)))
+				Text.translatable("commands.effectr.disable.exists", effectId).fillStyle(Text.empty().getStyle().withColor(TextColor.fromRgb(255*256*256)))
 			);
 			return 0;
 		}
@@ -134,7 +134,7 @@ public class EffectRemover implements ModInitializer {
 		String effectId = context.getArgument("effect", RegistryEntry.Reference.class).getIdAsString();
 		if (!this.disabledEffects.contains(effectId)) {
 			context.getSource().sendFeedback(
-				Text.translatable("commands.effectr.enable.not_exists", effectId).fillStyle(Text.literal("").getStyle().withColor(TextColor.fromRgb(255*256*256)))
+				Text.translatable("commands.effectr.enable.not_exists", effectId).fillStyle(Text.empty().getStyle().withColor(TextColor.fromRgb(255*256*256)))
 			);
 			return 0;
 		}
